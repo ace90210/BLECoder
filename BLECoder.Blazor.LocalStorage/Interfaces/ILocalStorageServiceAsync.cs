@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace LocalStorage
+namespace BLECoder.Blazor.LocalStorage
 {
     public interface ILocalStorageServiceAsync : IBaseLocalStorageService
     {

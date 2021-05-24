@@ -3,7 +3,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 
-namespace LocalStorage.JsonConverters
+namespace BLECoder.Blazor.LocalStorage.JsonConverters
 {
     /// <summary>
     public class TimespanJsonConverter : JsonConverter<TimeSpan>

@@ -1,10 +1,10 @@
-﻿using LocalStorage.JsonConverters;
+﻿using BLECoder.Blazor.LocalStorage.JsonConverters;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace LocalStorage
+namespace BLECoder.Blazor.LocalStorage
 {
     public static class ServiceCollectionExtensions
     {

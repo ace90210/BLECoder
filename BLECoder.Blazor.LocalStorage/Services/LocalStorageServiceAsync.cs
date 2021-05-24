@@ -3,7 +3,7 @@ using System;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace LocalStorage
+namespace BLECoder.Blazor.LocalStorage
 {
     public class LocalStorageServiceAsync : BaseLocalStorageService, ILocalStorageServiceAsync
     {

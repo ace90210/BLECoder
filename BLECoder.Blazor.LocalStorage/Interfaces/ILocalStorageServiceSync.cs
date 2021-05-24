@@ -1,4 +1,4 @@
-﻿namespace LocalStorage
+﻿namespace BLECoder.Blazor.LocalStorage
 {
     public interface ILocalStorageServiceSync : IBaseLocalStorageService
     {

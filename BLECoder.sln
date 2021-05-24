@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31229.75
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BLECoder.Blazor.Authentication", "BLECoder.Blazor.Authentication\BLECoder.Blazor.Authentication.csproj", "{34FC1887-7C16-410C-B580-F25B1CD194E3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BLECoder.Blazor.Client.Authentication", "BLECoder.Blazor.Client.Authentication\BLECoder.Blazor.Client.Authentication.csproj", "{34FC1887-7C16-410C-B580-F25B1CD194E3}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BLECoder.Blazor.LocalStorage", "BLECoder.Blazor.LocalStorage\BLECoder.Blazor.LocalStorage.csproj", "{C0EEBE7C-5E16-4532-B611-7C0D7E9A9713}"
 EndProject
@@ -11,6 +11,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		readme.md = readme.md
 	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BLECoder.Blazor.Server.Authentication", "BLECoder.Blazor.Server.Authentication\BLECoder.Blazor.Server.Authentication.csproj", "{AC92F892-0A53-44ED-BA32-54B840A6FBA2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -26,6 +28,10 @@ Global
 		{C0EEBE7C-5E16-4532-B611-7C0D7E9A9713}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C0EEBE7C-5E16-4532-B611-7C0D7E9A9713}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C0EEBE7C-5E16-4532-B611-7C0D7E9A9713}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AC92F892-0A53-44ED-BA32-54B840A6FBA2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AC92F892-0A53-44ED-BA32-54B840A6FBA2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AC92F892-0A53-44ED-BA32-54B840A6FBA2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AC92F892-0A53-44ED-BA32-54B840A6FBA2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

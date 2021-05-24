@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace LocalStorage
+namespace BLECoder.Blazor.LocalStorage
 {
     public interface IBaseLocalStorageService
     {

@@ -5,7 +5,7 @@ using System.Security.Claims;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace BLECoder.Blazor.Authentication.Security
+namespace BLECoder.Blazor.Client.Authentication.Security
 {
     /// <summary>
     /// Maps array strogns in claims to seperate claims each, credit to cradle77 (see https://medium.com/@marcodesanctis2/securing-blazor-webassembly-with-identity-server-4-ee44aa1687ef)

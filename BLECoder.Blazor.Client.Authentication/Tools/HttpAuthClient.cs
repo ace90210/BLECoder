@@ -1,6 +1,6 @@
 ﻿using System.Net.Http;
 
-namespace BLECoder.Blazor.Authentication.Tools
+namespace BLECoder.Blazor.Client.Authentication.Tools
 {
     public class HttpAuthClient : HttpClient
     {

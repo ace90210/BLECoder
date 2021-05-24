@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text.Json;
 
-namespace LocalStorage
+namespace BLECoder.Blazor.LocalStorage
 {
     public class BaseLocalStorageService 
     {
