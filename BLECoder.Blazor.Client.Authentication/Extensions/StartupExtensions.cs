@@ -20,8 +20,6 @@ namespace BLECoder.Blazor.Client.Authentication.Extensions
 
                 options.UserOptions.RoleClaim = "role";
 
-                options.ProviderOptions.DefaultScopes.Add("openid");
-                options.ProviderOptions.DefaultScopes.Add("profile");
                 options.ProviderOptions.DefaultScopes.Add("roles");
                 options.ProviderOptions.DefaultScopes.Add(apiScope);
             }).AddAccountClaimsPrincipalFactory<ArrayClaimsPrincipalFactory<RemoteUserAccount>>();
