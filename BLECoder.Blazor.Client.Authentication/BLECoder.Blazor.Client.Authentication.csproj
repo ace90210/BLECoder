@@ -2,14 +2,15 @@
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
-    <Version>5.0.1</Version>
+    <Version>5.0.2</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Product>BLECoder.Blazor.Client.Authentication</Product>
     <Company>BLE Enterprises Ltd</Company>
     <Authors>Barry Wright</Authors>
     <Copyright>BLE Enteprises Ltd</Copyright>
     <PackageLicenseFile>licence.txt</PackageLicenseFile>
-    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <RepositoryUrl>https://github.com/ace90210/BLECoder</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>
