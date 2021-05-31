@@ -1,0 +1,51 @@
+﻿@page "/history/fetchdata"
+
+@inject ILocalStorageServiceAsync LocalStorage
+
+<h1>Weather forecast - History</h1>
+
+<p>This component demonstrates loading of data from local storage.</p>
+
+@if (forecastHistory == null)
+{
+    <p><em>Loading...</em></p>
+}
+else if(forecastHistory.Forecasts == null || forecastHistory.Forecasts.Length == 0)
+{
+    <p><em>No history found!</em></p>
+}
+else
+{
+    <h2>Time of Corecast: @forecastHistory.TimeOfForecast.ToShortDateString() - @forecastHistory.TimeOfForecast.ToShortTimeString() </h2>
+    <p>Was Authenticated: @(forecastHistory.WasAuth)</p>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Temp. (C)</th>
+                <th>Temp. (F)</th>
+                <th>Summary</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var forecast in forecastHistory.Forecasts)
+            {
+                <tr>
+                    <td>@forecast.Date.ToShortDateString()</td>
+                    <td>@forecast.TemperatureC</td>
+                    <td>@forecast.TemperatureF</td>
+                    <td>@forecast.Summary</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private WeatherForecastHistory forecastHistory;
+
+    protected override async Task OnInitializedAsync()
+    {
+        forecastHistory = await LocalStorage.GetItemAsync<WeatherForecastHistory>("history") ?? new WeatherForecastHistory();
+    }
+}

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace BLECoder.Blazor.Shared
+namespace BLECoderTemplate.Shared
 {
     public class WeatherForecast
     {

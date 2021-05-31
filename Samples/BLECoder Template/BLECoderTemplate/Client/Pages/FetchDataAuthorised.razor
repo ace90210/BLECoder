@@ -4,19 +4,21 @@
 
 @inject HttpAuthClient Http
 
+@inject ILocalStorageServiceAsync LocalStorage
+
 <h1>Weather forecast - Authorised</h1>
 
 <p>This component demonstrates fetching data from the server behind an authorisation guard.</p>
 
 @if (!string.IsNullOrWhiteSpace(errorMessage))
 {
-    <p><em>Error: @errorMessage</em></p>    
+    <p><em>Error: @errorMessage</em></p>
 }
 else if (forecasts == null)
 {
     <p><em>Loading...</em></p>
 }
-else 
+else
 {
     <table class="table">
         <thead>
@@ -58,5 +60,10 @@ else
                 errorMessage = $"{r.StatusCode} - {responseContent}";
 
         }, new WeatherForecast[0]);
+
+        if(forecasts?.Length > 0)
+        {
+            await LocalStorage.SetItemAsync("history", new WeatherForecastHistory() { Forecasts = forecasts, WasAuth = true });
+        }
     }
 }

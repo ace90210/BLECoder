@@ -2,6 +2,8 @@
 
 @inject HttpAuthClient Http
 
+@inject ILocalStorageServiceAsync LocalStorage
+
 <h1>Weather forecast</h1>
 
 <p>This component demonstrates fetching data from the server.</p>
@@ -41,6 +43,11 @@ else
     protected override async Task OnInitializedAsync()
     {
         forecasts = await Http.Client(false).GetFromJsonAsync<WeatherForecast[]>("WeatherForecast");
+
+        if (forecasts?.Length > 0)
+        {
+            await LocalStorage.SetItemAsync("history", new WeatherForecastHistory() { Forecasts = forecasts });
+        }
     }
 
 }

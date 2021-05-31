@@ -5,7 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace BLECoder.Blazor.Server
+namespace BLECoderTemplate.Server
 {
     public class Startup
     {
@@ -23,7 +23,7 @@ namespace BLECoder.Blazor.Server
             services.AddControllersWithViews();
             services.AddRazorPages();
 
-            services.AddBlazorServerAuthentication("https://ids.example.com/", "example.api", true, "example.secret");
+            services.AddBlazorServerAuthentication("https://ids.example.com/", "example.api", "example.secret");
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

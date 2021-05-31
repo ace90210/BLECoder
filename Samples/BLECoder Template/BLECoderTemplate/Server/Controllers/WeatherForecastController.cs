@@ -1,4 +1,4 @@
-﻿using BLECoder.Blazor.Shared;
+﻿using BLECoderTemplate.Shared;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace BLECoder.Blazor.Server.Controllers
+namespace BLECoderTemplate.Server.Controllers
 {
     [ApiController]
     [Route("[controller]")]
@@ -42,7 +42,7 @@ namespace BLECoder.Blazor.Server.Controllers
         public IEnumerable<WeatherForecast> GetAuthorised()
         {
             var rng = new Random();
-            return Enumerable.Range(1, 30).Select(index => new WeatherForecast
+            return Enumerable.Range(1, 40).Select(index => new WeatherForecast
             {
                 Date = DateTime.Now.AddDays(index),
                 TemperatureC = rng.Next(-20, 55),

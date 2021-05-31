@@ -6,15 +6,16 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="BLECoder.Blazor.Client.Authentication" Version="5.0.2" />
+    <PackageReference Include="BLECoder.Blazor.Client.Authentication" Version="5.0.3" />
+    <PackageReference Include="BLECoder.Blazor.LocalStorage" Version="5.0.2" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="5.0.6" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Authentication" Version="5.0.5" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Authentication" Version="5.0.6" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="5.0.6" PrivateAssets="all" />
     <PackageReference Include="System.Net.Http.Json" Version="5.0.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Shared\BLECoder.Blazor.Shared.csproj" />
+    <ProjectReference Include="..\Shared\BLECoderTemplate.Shared.csproj" />
   </ItemGroup>
 
   <ItemGroup>
