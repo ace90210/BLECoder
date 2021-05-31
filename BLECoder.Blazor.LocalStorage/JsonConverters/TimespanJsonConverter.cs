@@ -6,6 +6,8 @@ using System.Text.RegularExpressions;
 namespace BLECoder.Blazor.LocalStorage.JsonConverters
 {
     /// <summary>
+    /// Json converter for <see cref="TimeSpan"/>
+    /// </summary>
     public class TimespanJsonConverter : JsonConverter<TimeSpan>
     {
         /// <summary>
@@ -13,6 +15,7 @@ namespace BLECoder.Blazor.LocalStorage.JsonConverters
         /// </summary>
         public const string TimeSpanFormatString = @"d\.hh\:mm\:ss\:FFF";
 
+        /// <inheritdoc/>
         public override TimeSpan Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             var s = reader.GetString();
@@ -34,6 +37,7 @@ namespace BLECoder.Blazor.LocalStorage.JsonConverters
             }
         }
 
+        /// <inheritdoc/>
         public override void Write(Utf8JsonWriter writer, TimeSpan value, JsonSerializerOptions options)
         {
             writer.WriteStringValue($"{value.ToString(TimeSpanFormatString)}");

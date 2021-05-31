@@ -7,8 +7,18 @@ using System.Threading.Tasks;
 
 namespace BLECoder.Blazor.Client.Authentication.Extensions
 {
+    /// <summary>
+    /// Http Helper Extensions to simplify Http Requests and reading of response contents.
+    /// </summary>
     public static class HttpExtensions
     {
+        /// <summary>
+        /// Return the content of as teh specific object.
+        /// </summary>
+        /// <typeparam name="T">The data type to return the data in</typeparam>
+        /// <param name="httpContent">The HttpContent</param>
+        /// <param name="defaultValue">The default value to provide if there is an error.</param>
+        /// <returns>The content deserialized.</returns>
         public static async Task<T> GetContentJsonAsync<T>(this HttpContent httpContent, T defaultValue = default)
         {
             try
@@ -23,6 +33,16 @@ namespace BLECoder.Blazor.Client.Authentication.Extensions
             }
         }
 
+        /// <summary>
+        /// Send a GET request to the specified Uri and return the value resulting from deserialize the response body as JSON in an asynchronous operation. 
+        /// If a non success response is returned or error occurs the onError function is called and provided the <see cref="HttpResponseMessage"/> returned from the call, or the error wrapped in a <see cref="HttpResponseMessage"/>
+        /// </summary>
+        /// <typeparam name="TValue">The type of the object to deserialize to and return.</typeparam>
+        /// <param name="client">The client used to send the request.</param>
+        /// <param name="requestUri">The Uri the request is sent to.</param>
+        /// <param name="onError">The event called when a non success or error occurs</param>
+        /// <param name="defaultValue">The default value to provide if there is an error.</param>
+        /// <returns>The response deserialized.</returns>
         public static async Task<TValue> GetFromJsonAsync<TValue>(this HttpClient client, string requestUri, Func<HttpResponseMessage, Task> onError, TValue defaultValue = default)
         {
             try

@@ -8,11 +8,12 @@ using System.Threading.Tasks;
 namespace BLECoder.Blazor.Client.Authentication.Security
 {
     /// <summary>
-    /// Maps array strogns in claims to seperate claims each, credit to cradle77 (see https://medium.com/@marcodesanctis2/securing-blazor-webassembly-with-identity-server-4-ee44aa1687ef)
+    /// Maps array strings in claims to seperate claims each, credit to cradle77 (see https://medium.com/@marcodesanctis2/securing-blazor-webassembly-with-identity-server-4-ee44aa1687ef)
     /// </summary>
-    /// <typeparam name="TAccount"></typeparam>
+    /// <typeparam name="TAccount">The account type.</typeparam>
     public class ArrayClaimsPrincipalFactory<TAccount> : AccountClaimsPrincipalFactory<TAccount> where TAccount : RemoteUserAccount
     {
+        /// <inheritdoc/>
         public ArrayClaimsPrincipalFactory(IAccessTokenProviderAccessor accessor)
         : base(accessor)
         { }
@@ -20,6 +21,8 @@ namespace BLECoder.Blazor.Client.Authentication.Security
 
         // when a user belongs to multiple roles, IS4 returns a single claim with a serialised array of values
         // this class improves the original factory by deserializing the claims in the correct way
+
+        /// <inheritdoc/>
         public async override ValueTask<ClaimsPrincipal> CreateUserAsync(TAccount account, RemoteAuthenticationUserOptions options)
         {
             var user = await base.CreateUserAsync(account, options);

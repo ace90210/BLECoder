@@ -5,16 +5,37 @@ using System.Threading.Tasks;
 
 namespace BLECoder.Blazor.LocalStorage
 {
+    /// <summary>
+    /// Local storage access using asyncronous code.
+    /// </summary>
     public class LocalStorageServiceAsync : BaseLocalStorageService, ILocalStorageServiceAsync
     {
         private readonly IJSRuntime _jsRuntime;
 
+        /// <summary>
+        /// Default Constructor
+        /// </summary>
+        /// <param name="jSRuntime">The injected JS Runtime</param>
+        /// <param name="options">The JSON Serialisation options</param>
         public LocalStorageServiceAsync(IJSRuntime jSRuntime, JsonSerializerOptions options) : base(options)
         {
             _jsRuntime = jSRuntime;
         }
 
-        public async Task<T> GetItemAsync<T>(string key)
+        /// <inheritdoc/>
+        public async Task ClearAsync()
+        {
+            await _jsRuntime.InvokeAsync<object>("localStorage.clear");
+        }
+
+        /// <inheritdoc/>
+        public async Task<bool> ContainKeyAsync(string key)
+        {
+            return await _jsRuntime.InvokeAsync<bool>("localStorage.hasOwnProperty", key);
+        }
+
+        /// <inheritdoc/>
+        public async Task<T> GetItemAsync<T>(string key, T defaultValue = default)
         {
             if (string.IsNullOrEmpty(key))
                 throw new ArgumentNullException(nameof(key));
@@ -22,26 +43,24 @@ namespace BLECoder.Blazor.LocalStorage
             var serialisedData = await _jsRuntime.InvokeAsync<string>("localStorage.getItem", key);
 
             if (string.IsNullOrWhiteSpace(serialisedData))
-                return default(T);
+                return defaultValue;
 
             return JsonSerializer.Deserialize<T>(serialisedData, _jsonOptions);
         }
 
-        public async Task SetItemAsync(string key, object data)
+        /// <inheritdoc/>
+        public async Task<string> KeyAsync(int index)
         {
-            if (string.IsNullOrEmpty(key))
-                throw new ArgumentNullException(nameof(key));
-
-            var e = await RaiseOnChangingAsync(key, data);
-
-            if (e.Cancel)
-                return;
-
-            await _jsRuntime.InvokeAsync<object>("localStorage.setItem", key, JsonSerializer.Serialize(data, _jsonOptions));
-
-            RaiseOnChanged(key, e.OldValue, data);
+            return await _jsRuntime.InvokeAsync<string>("localStorage.key", index);
         }
 
+        /// <inheritdoc/>
+        public async Task<int> LengthAsync()
+        {
+            return await _jsRuntime.InvokeAsync<int>("eval", "localStorage.length");
+        }
+
+        /// <inheritdoc/>
         public async Task RemoveItemAsync(string key)
         {
             if (string.IsNullOrEmpty(key))
@@ -50,27 +69,37 @@ namespace BLECoder.Blazor.LocalStorage
             await _jsRuntime.InvokeAsync<object>("localStorage.removeItem", key);
         }
 
-        public async Task ClearAsync() 
+        /// <inheritdoc/>
+        public async Task<bool> SetItemAsync(string key, object data, bool overwriteExisting = true)
         {
-            await _jsRuntime.InvokeAsync<object>("localStorage.clear"); 
+            if (string.IsNullOrEmpty(key))
+                throw new ArgumentNullException(nameof(key));
+
+            if (!overwriteExisting)
+            {
+                var exists = await ContainKeyAsync(key);
+
+                if (exists)
+                {
+                    return false;
+                }
+            }
+
+            var e = await RaiseOnChangingAsync(key, data);
+
+            if (e.Cancel)
+                return false;
+
+            await _jsRuntime.InvokeAsync<object>("localStorage.setItem", key, JsonSerializer.Serialize(data, _jsonOptions));
+
+            RaiseOnChanged(key, e.OldValue, data);
+
+            return true;
         }
 
-        public async Task<int> LengthAsync()
-        {
-            return await _jsRuntime.InvokeAsync<int>("eval", "localStorage.length");
-        }
-
-        public async Task<string> KeyAsync(int index)
-        {
-            return await _jsRuntime.InvokeAsync<string>("localStorage.key", index);
-        }
-
-        public async Task<bool> ContainKeyAsync(string key)
-        {
-            return await _jsRuntime.InvokeAsync<bool>("localStorage.hasOwnProperty", key);
-        }
-
+        /// <inheritdoc/>
         public event EventHandler<ChangingEventArgs> Changing;
+
         private async Task<ChangingEventArgs> RaiseOnChangingAsync(string key, object data)
         {
             var e = new ChangingEventArgs
