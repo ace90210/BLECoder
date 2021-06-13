@@ -1,0 +1,91 @@
+﻿@inject IWebAssemblyHostEnvironment HostEnvironment
+
+@implements IErrorComponent
+
+@inject ILogger<GeneralError> Logger
+
+@if (isErrorActive)
+{
+    if (HostEnvironment.IsDevelopment())
+    {
+        <div class="alert alert-danger" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close" @onclick="HideError">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            <h3>@title</h3>
+            <p>@message</p>
+
+            @if (ex != null)
+            {
+                <b>@ex.Message</b>
+                <p>@ex.StackTrace</p>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-danger" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close" @onclick="HideError">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            <h3>Sorry an unexpected error has occured!</h3>
+            <p>@title</p>
+            <p>@message</p>
+        </div>
+    }
+}
+
+<CascadingValue Value=this Name="ErrorComponent">
+    @ChildContent
+</CascadingValue>
+
+@code {
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+
+    public void ProcessError(Exception ex)
+    {
+        Logger.LogError("Error:ProcessError - Type: {Type} Message: {Message}",
+            ex.GetType(), ex.Message);
+
+        this.StateHasChanged();
+    }
+
+    bool isErrorActive;
+    string title;
+    string message;
+    Exception ex;
+
+    public void ShowError(string title, string message, Exception ex = null)
+    {
+        this.isErrorActive = true;
+        this.title = title;
+        this.message = message;
+        this.ex = ex;
+        StateHasChanged();
+    }
+
+    public void HandleFailedResponse<T>(FromJsonResponse<T> response, string title)
+    {
+        this.isErrorActive = true;
+
+        this.title = title;
+        this.ex = response.Exception;
+
+        if(!string.IsNullOrWhiteSpace(response.Message))
+        {
+            this.message = response.Message;
+        }
+        else
+        {
+            this.message = response.FullResponse.StatusCode.ToString();
+        }
+
+        StateHasChanged();
+    }
+
+    private void HideError()
+    {
+        isErrorActive = false;
+    }
+}

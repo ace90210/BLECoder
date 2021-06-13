@@ -1,0 +1,78 @@
+﻿@page "/faultyfetchdata"
+
+
+@inject DialogService DialogService
+
+@inject HttpWeatherForecastService weatherService
+
+<RadzenCard>
+    <h1>Faulty Weather forecast</h1>
+
+    <h3>This component demonstrates unreliable fetching data from the server.</h3>
+
+    <div>Status:</div>
+    <b>@status</b>
+
+    @if (forecasts == null)
+    {
+        <div class="w-100 h-100">
+            <RadzenProgressBar Value="100" class="m-auto" ShowValue="false" Mode="ProgressBarMode.Indeterminate" />
+        </div>
+    }
+    else
+    {
+        <RadzenDataGrid Data="@forecasts" TItem="WeatherForecast" ColumnWidth="300px" AllowColumnResize="true">
+            <Columns>
+                <RadzenDataGridColumn TItem="WeatherForecast" Property="Date" Title="Date" Width="100px" TextAlign="TextAlign.Center">
+                    <Template Context="forecast">
+                        @forecast.Date.ToShortDateString()
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="WeatherForecast" Property="TemperatureC" Title="Temp. (C)" Width="50px" TextAlign="TextAlign.Center" />
+                <RadzenDataGridColumn TItem="WeatherForecast" Property="TemperatureF" Title="Temp. (F)" Width="50px" TextAlign="TextAlign.Center" />
+                <RadzenDataGridColumn TItem="WeatherForecast" Property="Summary" Title="Summary" Width="150px" TextAlign="TextAlign.Center" />
+            </Columns>
+        </RadzenDataGrid>
+    }
+</RadzenCard>
+
+@code {
+    [CascadingParameter(Name = "ErrorComponent")]
+    protected IErrorComponent ErrorComponent { get; set; }
+
+    [CascadingParameter(Name = "MainLayoutComponent")]
+    protected IMainLayoutComponent MainLayoutComponent { get; set; }
+
+    private WeatherForecast[] forecasts;
+
+    private string status;
+    private string number;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await MainLayoutComponent.ShowBusyDialog();
+
+        await CallWeather();
+
+        await MainLayoutComponent.CloseDialog();
+    }
+
+    private async Task CallWeather()
+    {
+        status = "requesting weather";
+
+        var response = await weatherService.GetFaultyForecast();
+
+        if (response.Content != null)
+        {
+            forecasts = response.Content;
+            status = "complete";
+        }
+        else
+        {
+            status = response.Message;
+
+            ErrorComponent.HandleFailedResponse(response);
+        }
+    }
+}

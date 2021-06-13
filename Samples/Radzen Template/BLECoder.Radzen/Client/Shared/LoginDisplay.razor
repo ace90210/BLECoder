@@ -1,0 +1,38 @@
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+
+@inject NavigationManager Navigation
+@inject SignOutSessionStateManager SignOutManager
+
+    <AuthorizeView>
+        <Authorized>
+            <RadzenProfileMenu Style="background-color: transparent; user-select: none;">
+                <Template>
+                    <RadzenGravatar Email="@GetEmail(context)">
+                    </RadzenGravatar>
+                </Template>
+                <ChildContent>
+                    <RadzenProfileMenuItem Style="margin-left: 0;" Text="Profile" Path="profile" Icon="account_circle"></RadzenProfileMenuItem>
+                    <RadzenProfileMenuItem Style="margin-left: 0;" Text="Settings" Path="menu" Icon="line_weight"></RadzenProfileMenuItem>
+                    <RadzenProfileMenuItem Style="margin-left: 0;" Text="Logout" Path="session/logout" Icon="logout"></RadzenProfileMenuItem>
+                </ChildContent>
+            </RadzenProfileMenu>
+        </Authorized>
+        <NotAuthorized>
+            <RadzenButton class="mr-3" Click=@(args => Navigation.NavigateTo("authentication/login")) Text="Login" Icon="login" ButtonStyle="ButtonStyle.Secondary" />
+        </NotAuthorized>
+    </AuthorizeView>
+@code {
+    private async Task BeginSignOut(MouseEventArgs args)
+    {
+        await SignOutManager.SetSignOutState();
+        Navigation.NavigateTo("authentication/logout");
+    }
+
+    private string GetEmail(AuthenticationState state)
+    {
+        var claims = state.User.Claims.FirstOrDefault(c => c.Type == "email");
+
+        return claims?.Value;
+    }
+}

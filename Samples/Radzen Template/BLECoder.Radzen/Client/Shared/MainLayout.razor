@@ -1,0 +1,148 @@
+﻿@inherits LayoutComponentBase
+
+@inject ThemeState ThemeState
+
+@inject ILocalStorageServiceAsync LocalStorage
+
+@inject ThemeState ThemeState
+@inject NavigationManager UriHelper
+@inject IJSRuntime JSRuntime
+
+@inject DialogService DialogService;
+
+@implements IMainLayoutComponent
+
+@if (ThemeCss != "default.css")
+{
+    <link href="@(ThemeCss)" rel="stylesheet" />
+}
+
+<RadzenDialog />
+<RadzenNotification />
+<RadzenContextMenu />
+<RadzenTooltip />
+
+<RadzenHeader>
+    <ChildContent>
+        <div class="row justify-content-start align-items-center">
+            <div class="col-12 d-flex">
+                <RadzenSidebarToggle Click="@(args => { sidebarExpanded = !sidebarExpanded; bodyExpanded = !bodyExpanded; })" />
+
+                <h1 class="flex-grow-1">RadzenTemplate</h1>
+
+                <div class="d-flex align-items-center justify-content-end">
+                    <LoginDisplay />
+                </div>
+            </div>
+        </div>
+    </ChildContent>
+</RadzenHeader>
+
+<div class="w-100">
+    <RadzenBody @ref="@body0" @bind-Expanded="@bodyExpanded">
+        <ChildContent>
+            <GeneralError>
+                <CascadingValue Value=this Name="MainLayoutComponent">
+                    <RadzenContentContainer Name="main">
+                        @Body
+                    </RadzenContentContainer>
+                </CascadingValue>
+            </GeneralError>
+        </ChildContent>
+    </RadzenBody>
+</div>
+
+<RadzenSidebar @ref="@sidebar0" @bind-Expanded="@sidebarExpanded">
+    <ChildContent>
+        <div class="d-flex flex-column h-100">
+            <RadzenPanelMenu class="flex-grow-1">
+                <NavMenu />
+            </RadzenPanelMenu>
+
+            <h5 class="mx-3">Theme:</h5>
+            <RadzenDropDown class="mx-3 mb-2" TValue="string" Data="SupportedThemes.SupportedThemeItems" TextProperty="Text" ValueProperty="Value" @bind-Value="@ThemeValue" Change="@(async args => await ThemeChanged(args))" />
+        </div>
+    </ChildContent>
+</RadzenSidebar>
+
+<RadzenFooter>
+    <ChildContent>
+        <div class="col-12 d-flex">
+            <RadzenLabel class="flex-grow-1" Text="BLECoder, Copyright &copy; 2021" />
+        </div>
+    </ChildContent>
+</RadzenFooter>
+
+@code {
+        RadzenSidebar sidebar0;
+        RadzenBody body0;
+        bool sidebarExpanded = true;
+        bool bodyExpanded = false;
+
+        string ThemeCss
+    {
+            get
+        {
+                if (string.IsNullOrWhiteSpace(ThemeState.CurrentTheme.CustomCssPath))
+                    return $"_content/Radzen.Blazor/css/{ThemeState.CurrentTheme.Value}.css";
+
+                return ThemeState.CurrentTheme.CustomCssPath;
+            }
+        }
+
+    public string ThemeValue
+    {
+        get { return ThemeState.CurrentTheme.Value; }
+        set
+        {
+            ThemeState.CurrentTheme = SupportedThemes.SupportedThemeItems.First(ti => ti.Value.Equals(value));
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (await LocalStorage.ContainKeyAsync("defaultTheme"))
+        {
+            var themeValue = await LocalStorage.GetItemAsync<string>("defaultTheme");
+
+            var supportedThemeMatch = SupportedThemes.SupportedThemeItems.FirstOrDefault(ti => ti.Value.Equals(themeValue));
+            if (supportedThemeMatch != null && supportedThemeMatch != ThemeState.CurrentTheme)
+            {
+                ThemeState.CurrentTheme = supportedThemeMatch;
+                this.StateHasChanged();
+            }
+        }
+    }
+
+    async Task ThemeChanged(object value)
+    {
+        var themeValue = value as string;
+
+        await LocalStorage.SetItemAsync("defaultTheme", themeValue);
+
+        ThemeState.CurrentTheme = SupportedThemes.SupportedThemeItems.First(ti => ti.Value.Equals(themeValue));
+
+        this.StateHasChanged();
+    }
+
+    public async Task ShowBusyDialog()
+    {
+        await InvokeAsync(async () =>
+        {
+            await Task.Delay(2);
+            DialogService.Open("", ds =>
+                @<div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            Please wait...
+                        </div>
+                    </div>
+                </div>, new DialogOptions() { ShowTitle = false, Style = "min-height:auto;min-width:auto;width:auto" });
+        });
+    }
+
+    public async Task CloseDialog()
+    {
+        await InvokeAsync(async () => { await Task.Delay(2); DialogService.Close(); });
+    }
+}

@@ -1,0 +1,60 @@
+﻿@page "/counter"
+
+@inject ContextMenuService ContextMenuService
+
+@inject NotificationService NotificationService
+
+@inject TooltipService tooltipService
+
+<RadzenCard>
+    <h1>Counter</h1>
+
+    <p>Current count: @currentCount</p>
+
+    <RadzenButton Text="Left Click me or Right Click me" class="btn btn-primary"
+                  Click="IncrementCount"
+                  ContextMenu=@(args => ShowContextMenuWithContent(args))
+                  @oncontextmenu:preventDefault="true"
+                  MouseEnter="@(args => ShowTooltip(args, new TooltipOptions(){ Position = TooltipPosition.Bottom }))" />
+
+</RadzenCard>
+
+@code {
+    private int currentCount = 0;
+
+    private void IncrementCount()
+    {
+        currentCount++;
+    }
+
+
+    void ShowContextMenuWithContent(MouseEventArgs args) => ContextMenuService.Open(args, ds =>
+            @<RadzenMenu Click="OnMenuItemClick">
+                <RadzenMenuItem Text="Error" Value="0"></RadzenMenuItem>
+                <RadzenMenuItem Text="Info" Value="1"></RadzenMenuItem>
+                <RadzenMenuItem Text="More items" Value="-1">
+                    <RadzenMenuItem Text="More Items" Value="-2">
+                        <RadzenMenuItem Text="Success" Value="2"></RadzenMenuItem>
+                        <RadzenMenuItem Text="Warning" Value="3"></RadzenMenuItem>
+                    </RadzenMenuItem>
+                </RadzenMenuItem>
+            </RadzenMenu>);
+
+    void OnMenuItemClick(MenuItemEventArgs args)
+    {
+        Console.WriteLine($"Menu item with Value={args.Value} clicked");
+
+        if ((int)args.Value >= 0)
+            ShowNotification(new NotificationMessage { Severity = (NotificationSeverity)args.Value, Summary = "Info Summary", Detail = "Info Detail", Duration = 4000 });
+    }
+
+
+    void ShowNotification(NotificationMessage message)
+    {
+        NotificationService.Notify(message);
+
+        Console.WriteLine($"{message.Severity} notification");
+    }
+
+    void ShowTooltip(ElementReference elementReference, TooltipOptions options = null) => tooltipService.Open(elementReference, "You can right click me!", options);
+}

@@ -1,0 +1,56 @@
+﻿@page "/history/fetchdata"
+
+@inject ILocalStorageServiceAsync LocalStorage
+
+<RadzenCard>
+    <h1>Weather forecast - History</h1>
+
+    <p>This component demonstrates loading of data from local storage.</p>
+
+    @if (forecastHistory == null)
+    {
+        <div class="w-100 h-100">
+            <RadzenProgressBar Value="100" class="m-auto" ShowValue="false" Mode="ProgressBarMode.Indeterminate" />
+        </div>
+    }
+    else if (forecastHistory.Forecasts == null || forecastHistory.Forecasts.Length == 0)
+    {
+        <p><em>No history found!</em></p>
+    }
+    else
+    {
+        <RadzenCard>
+            <h2>Time of forecast:</h2>
+            <h3>
+                @forecastHistory.TimeOfForecast.ToShortDateString() - @forecastHistory.TimeOfForecast.ToShortTimeString()
+            </h3>
+
+            <div class="m-2">
+                <RadzenLabel Text="Authenticated" /> <RadzenCheckBox @bind-Value=@forecastHistory.WasAuth Disabled="true" TValue="bool" />
+            </div>
+
+            <RadzenDataGrid class="m-2" Data="@(forecastHistory.Forecasts)" TItem="WeatherForecast" AllowColumnResize="true">
+                <Columns>
+                    <RadzenDataGridColumn TItem="WeatherForecast" Property="Date" Title="Date" Width="100px" TextAlign="TextAlign.Center">
+                        <Template Context="forecast">
+                            @forecast.Date.ToShortDateString()
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="WeatherForecast" Property="TemperatureC" Title="Temp. (C)" Width="50px" TextAlign="TextAlign.Center" />
+                    <RadzenDataGridColumn TItem="WeatherForecast" Property="TemperatureF" Title="Temp. (F)" Width="50px" TextAlign="TextAlign.Center" />
+                    <RadzenDataGridColumn TItem="WeatherForecast" Property="Summary" Title="Summary" Width="150px" TextAlign="TextAlign.Center" />
+                </Columns>
+            </RadzenDataGrid>
+        </RadzenCard>
+
+    }
+</RadzenCard>
+
+@code {
+    private WeatherForecastHistory forecastHistory;
+
+    protected override async Task OnInitializedAsync()
+    {
+        forecastHistory = await LocalStorage.GetItemAsync<WeatherForecastHistory>("history") ?? new WeatherForecastHistory();
+    }
+}

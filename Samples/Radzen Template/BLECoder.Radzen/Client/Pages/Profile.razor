@@ -1,0 +1,78 @@
+﻿@page "/profile"
+
+@attribute [Authorize(Roles = "ExampleRole")]
+
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+@using RadzenTemplate.Client.Models
+
+<RadzenCard>
+    <h1>Profile</h1>
+
+    @if (state == null)
+    {
+        <p>loading...</p>
+    }
+    else
+    {
+        <div class="row">
+            <div class="col-md-6">
+                <div>Name:</div>
+                <b>@profile.Name</b>
+
+                <div>Authentication Type:</div>
+                <b>@profile.AuthenticationType</b>
+            </div>
+
+            <div class="col-md-6">
+                <div>Username:</div>
+                <b>@profile.Username</b>
+
+                <div>Email:</div>
+                <b>@profile.Email</b>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div>Roles Information:</div>
+
+                @if (profile.Roles.Count() > 0)
+                {
+                    <RadzenDataList Data="@profile.Roles" TItem="string">
+                        <Template Context="role">
+                            <b>@role</b>
+                        </Template>
+                    </RadzenDataList>
+                }
+            </div>
+
+            <div class="col-md-6">
+                <div>Additional Information:</div>
+
+                @if (profile.AdditionalInformation.Count() > 0)
+                {
+
+                    <RadzenDataList Data="@profile.AdditionalInformation" TItem="System.Security.Claims.Claim">
+                        <Template Context="additionalInfo">
+                            <div>@additionalInfo.Type:</div>
+                            <b>@additionalInfo.Value</b>
+                        </Template>
+                    </RadzenDataList>
+                }
+            </div>
+        </div>
+    }
+</RadzenCard>
+
+@code {
+    private AuthenticationState state;
+    private ProfileDetails profile;
+
+    protected override async Task OnInitializedAsync()
+    {
+        state = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+
+        profile = new ProfileDetails(state.User);
+    }
+}

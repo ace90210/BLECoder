@@ -1,0 +1,22 @@
+﻿@page "/authentication/{action}"
+
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+
+<RemoteAuthenticatorView Action="@Action">
+    <LogInFailed Context="context">
+        <RadzenCard>
+            @if (string.IsNullOrWhiteSpace(context))
+            {
+                <h2>Sorry login failed.</h2>
+            }
+            else
+            {
+                <h2>Sorry login failed: @context .</h2>
+            }
+        </RadzenCard>
+    </LogInFailed>
+</RemoteAuthenticatorView>
+
+@code{
+    [Parameter] public string Action { get; set; }
+}

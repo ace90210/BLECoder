@@ -1,0 +1,137 @@
+﻿@page "/fetchdata"
+
+@inject ILocalStorageServiceAsync LocalStorage
+@inject HttpWeatherForecastService weatherService
+@inject NotificationService NotificationService
+@inject DialogService DialogService;
+
+<RadzenCard>
+    <h1>Weather forecast</h1>
+
+    <p>This component demonstrates fetching data from the server.</p>
+
+    <div>Results Count:</div>
+    <b>@count</b>
+
+    <div class="row">
+        <div class="col-md-4 px-2">
+            <RadzenButton Text="Try Delete" BusyText="Deleting ..." IsBusy=@busy Click=@(async args => { busy = true; count = await weatherService.DeleteTest(1); busy = false; }) />
+        </div>
+
+        <div class="col-md-4 px-2">
+            <RadzenButton Text="Try POST" BusyText="POSTing ..." IsBusy=@busy Click=@(async args => { busy = true; await PostWeather(8); busy = false; }) />
+        </div>
+
+        <div class="col-md-4 px-2">
+            <RadzenButton Text="Try PUT" BusyText="PUTing ..." IsBusy=@busy Click=@(async args => { busy = true; await PutWeather(2); busy = false; }) />
+        </div>
+    </div>
+
+    @if (forecasts == null)
+    {
+        <div class="w-100 h-100">
+            <RadzenProgressBar Value="100" class="m-auto" ShowValue="false" Mode="ProgressBarMode.Indeterminate" />
+        </div>
+    }
+    else
+    {
+        <RadzenDataGrid Data="@forecasts" TItem="WeatherForecast" ColumnWidth="300px" AllowColumnResize="true">
+            <Columns>
+                <RadzenDataGridColumn TItem="WeatherForecast" Property="Date" Title="Date" Width="100px" TextAlign="TextAlign.Center">
+                    <Template Context="forecast">
+                        @forecast.Date.ToShortDateString()
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="WeatherForecast" Property="TemperatureC" Title="Temp. (C)" Width="50px" TextAlign="TextAlign.Center" />
+                <RadzenDataGridColumn TItem="WeatherForecast" Property="TemperatureF" Title="Temp. (F)" Width="50px" TextAlign="TextAlign.Center" />
+                <RadzenDataGridColumn TItem="WeatherForecast" Property="Summary" Title="Summary" Width="150px" TextAlign="TextAlign.Center" />
+            </Columns>
+        </RadzenDataGrid>
+    }
+</RadzenCard>
+
+
+@code {
+    private WeatherForecast[] forecasts;
+
+    [CascadingParameter(Name = "ErrorComponent")]
+    protected IErrorComponent ErrorComponent { get; set; }
+
+    [CascadingParameter(Name = "MainLayoutComponent")]
+    protected IMainLayoutComponent MainLayoutComponent { get; set; }
+
+    private int count = 0;
+
+    private bool busy = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await MainLayoutComponent.ShowBusyDialog();
+
+        weatherService.OnDeleteRequestAsync += OnDeleteShowDialog;
+
+        await CallWeather();
+
+        await MainLayoutComponent.CloseDialog();
+    }
+
+    private async Task CallWeather()
+    {
+        try
+        {
+            var response = await weatherService.GetForecast();
+
+            if (response.Content != null)
+            {
+                forecasts = response.Content;
+            }
+            else
+            {
+                ErrorComponent.HandleFailedResponse(response);
+            }
+
+            if (forecasts?.Length > 0)
+            {
+                await LocalStorage.SetItemAsync("history", new WeatherForecastHistory() { Forecasts = forecasts });
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorComponent.ShowError(ex.Message, ex.StackTrace);
+        }
+    }
+
+
+    private async Task PostWeather(int count)
+    {
+        var response = await weatherService.PostForecast(count);
+
+        var strong = await response.FullResponse.Content.ReadAsStringAsync();
+
+        Console.WriteLine(strong);
+
+        if (response.Content != null)
+        {
+            forecasts = response.Content;
+        }
+        StateHasChanged();
+    }
+
+
+    private async Task PutWeather(int count)
+    {
+        var response = await weatherService.PutForecast(count);
+
+        if (response.Content != null)
+        {
+            forecasts = response.Content;
+        }
+        StateHasChanged();
+    }
+
+    async Task<bool> OnDeleteShowDialog()
+    {
+        var confirm = await DialogService.Confirm("Are you sure?", "Delete", new ConfirmOptions() { OkButtonText = "Yes", CancelButtonText = "No" });
+        return confirm ?? false;
+    }
+}
