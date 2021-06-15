@@ -5,10 +5,10 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="5.0.6" />
-    <PackageReference Include="BLECoder.Blazor.Server.Authentication" Version="5.0.2" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\..\BLECoder.Blazor.Server.Authentication\BLECoder.Blazor.Server.Authentication.csproj" />
     <ProjectReference Include="..\Client\BLECoderTemplate.Client.csproj" />
     <ProjectReference Include="..\Shared\BLECoderTemplate.Shared.csproj" />
   </ItemGroup>
