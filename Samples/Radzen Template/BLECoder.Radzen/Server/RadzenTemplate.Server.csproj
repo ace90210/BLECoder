@@ -1,15 +1,21 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="5.0.6" />
+
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.4">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\BLECoder.Blazor.Server.Authentication\BLECoder.Blazor.Server.Authentication.csproj" />
     <ProjectReference Include="..\Client\RadzenTemplate.Client.csproj" />
+    <ProjectReference Include="..\RadzenTemplate.EntityFrameworkCore.SqlServer\RadzenTemplate.EntityFrameworkCore.SqlServer.csproj" />
     <ProjectReference Include="..\Shared\RadzenTemplate.Shared.csproj" />
   </ItemGroup>
 </Project>
