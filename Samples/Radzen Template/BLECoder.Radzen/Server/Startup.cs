@@ -5,7 +5,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using MockDoor.Data.Migrations;
 using RadzenTemplate.EntityFrameworkCore.SqlServer.Contexts;
+using RadzenTemplate.Server.AutoMapperProfiles;
+using RadzenTemplate.Server.Repositories;
+using RadzenTemplate.Server.Services;
 
 namespace RadzenTemplate.Server
 {
@@ -24,6 +28,7 @@ namespace RadzenTemplate.Server
         {
             services.AddControllersWithViews();
             services.AddRazorPages();
+            services.AddAutoMapper(typeof(UserConfigurationProfile));
 
             services.AddBlazorServerAuthentication("https://ids.runeclawgames.com/", "example.api", "example.secret");
 
@@ -31,6 +36,9 @@ namespace RadzenTemplate.Server
             string connectionString = Configuration.GetConnectionString("DefaultConnection");
 
             services.AddDbContext<RadzenTemplateContext>(options => options.UseSqlServer(connectionString));
+
+            services.AddScoped<RadzenTemplateRepository>();
+            services.AddScoped<UserConfigurationService>();
 
         }
 
@@ -41,6 +49,7 @@ namespace RadzenTemplate.Server
             {
                 app.UseDeveloperExceptionPage();
                 app.UseWebAssemblyDebugging();
+
             }
             else
             {
@@ -48,6 +57,9 @@ namespace RadzenTemplate.Server
                 //The default HSTS value is 30 days.You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+
+            if(Configuration.GetValue<bool>("ApplyMigrationOnStartup"))
+                app.ApplyMigrations<RadzenTemplateContext>();
 
             app.UseHttpsRedirection();
             app.UseBlazorFrameworkFiles();
