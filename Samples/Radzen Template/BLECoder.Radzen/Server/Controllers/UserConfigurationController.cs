@@ -23,10 +23,7 @@ namespace RadzenTemplate.Server.Controllers
         [HttpGet("{key}")]
         public ActionResult<UserConfigurationDto> Get(string key)
         {
-            if (string.IsNullOrWhiteSpace(key))
-                return BadRequest();
-
-            var config = userConfigurationService.GetConfigurationAsync(key);
+            var config = userConfigurationService.GetConfiguration(key);
 
             if (config == null)
                 return NotFound();
@@ -43,12 +40,7 @@ namespace RadzenTemplate.Server.Controllers
         [HttpPost]
         public async Task<ActionResult> CreateConfiguration(UserConfigurationDto configuration)
         {
-            var invalidResponse = CheckRequest(configuration);
-
-            if (invalidResponse != null)
-                return invalidResponse;
-
-            var saved = await userConfigurationService.CreateConfigurationAsync(configuration);
+            var saved = await userConfigurationService.CreateConfiguration(configuration);
 
             if (saved)
                 return Ok();
@@ -59,42 +51,15 @@ namespace RadzenTemplate.Server.Controllers
         [HttpPut("{key}")]
         public async Task<ActionResult> UpdateConfiguration(string key, [FromBody]UserConfigurationDto configuration)
         {
-            var invalidResponse = CheckRequest(key, configuration);
+            if (string.IsNullOrWhiteSpace(key) || !configuration.UserUniqueIdentifier.Equals(key))
+                return BadRequest("Invalid or miss matched key");
 
-            if (invalidResponse != null)
-                return invalidResponse;
-
-            var saved = await userConfigurationService.UpdateConfigurationAsync(configuration);
+            var saved = await userConfigurationService.UpdateConfigurationAsync(key, configuration);
 
             if (saved)
                 return Ok();
 
             return BadRequest();
-        }
-
-        private ActionResult CheckRequest(string key, UserConfigurationDto configuration)
-        {
-            if (configuration == null)
-                return BadRequest();
-
-            if (string.IsNullOrWhiteSpace(key) || !configuration.UserUniqueIdentifier.Equals(key))
-                return BadRequest("Invalid or miss matched key");
-
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            return null;
-        }
-
-        private ActionResult CheckRequest(UserConfigurationDto configuration)
-        {
-            if (configuration == null)
-                return BadRequest();
-
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            return null;
         }
     }
 }

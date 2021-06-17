@@ -7,44 +7,22 @@ using RadzenTemplate.Shared;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace RadzenTemplate.Server.Repositories
 {
-    public class RadzenTemplateRepository
+    public class RadzenTemplateRepository : BaseDbContextRepository<RadzenTemplateContext>
     {
-        private readonly ILogger<RadzenTemplateRepository> _logger;
-        private readonly RadzenTemplateContext _context;
-        private readonly IMapper _mapper;
-
-        public RadzenTemplateRepository(ILogger<RadzenTemplateRepository> logger, RadzenTemplateContext context, IMapper mapper)
+        public RadzenTemplateRepository(ILogger<RadzenTemplateRepository> logger, RadzenTemplateContext context, IMapper mapper) : base(logger, context, mapper)
         {
-            _logger = logger;
-            _context = context;
-            _mapper = mapper;
-        }
-
-
-
-        public async Task<bool> CreateUserConfigurationAsync(UserConfigurationDto config)
-        {
-            return await _context.CreateAsync<UserConfigurationDto, UserConfiguration>(config.UserUniqueIdentifier, config);
-        }
-
-        public async Task<UserConfigurationDto> GetUserConfigurationAsync(string key)
-        {
-            return await _context.GetAsync<UserConfigurationDto, UserConfiguration>(key);
-        }
-
-        public async Task<bool> UpdateUserConfigurationAsync(UserConfigurationDto config)
-        {
-            return await _context.UpdateAsync<UserConfigurationDto, UserConfiguration>(config.UserUniqueIdentifier, config);
         }
 
         public List<UserConfigurationDto> GetUserConfigurations()
         {
-            return _context.GetList<UserConfigurationDto, UserConfiguration>().ToList();
+            var configs = _context.UserConfigurations.ToList();
+            return _mapper.Map<List<UserConfigurationDto>>(configs);
         }
 
         public UserConfigurationDto GetUserConfiguration(string key)
@@ -87,7 +65,7 @@ namespace RadzenTemplate.Server.Repositories
                 await _context.JsonBlobs.AddAsync(blob);
             }
 
-            return await _context.SafeSaveChanges();
+            return await SafeSaveChanges();
         }
 
         public T GetBlob<T>(string key)

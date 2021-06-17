@@ -1,13 +1,11 @@
-﻿using AutoMapper;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.EntityFrameworkCore;
 using RadzenTemplate.EntityFrameworkCore.SqlServer.Models;
 
 namespace RadzenTemplate.EntityFrameworkCore.SqlServer.Contexts
 {
-    public class RadzenTemplateContext : BaseDbContext
+    public class RadzenTemplateContext : DbContext
     {
-        public RadzenTemplateContext(DbContextOptions<RadzenTemplateContext> options, IMapper mapper, ILogger<RadzenTemplateContext> logger) : base (options, mapper, logger) { }
+        public RadzenTemplateContext(DbContextOptions<RadzenTemplateContext> options) : base (options) { }
 
         public DbSet<JsonBlob> JsonBlobs { get; set; }
 

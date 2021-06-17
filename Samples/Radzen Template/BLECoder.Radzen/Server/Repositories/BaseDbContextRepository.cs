@@ -6,18 +6,22 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 
-namespace RadzenTemplate.EntityFrameworkCore.SqlServer.Contexts
+namespace RadzenTemplate.Server.Repositories
 {
-    public abstract class BaseDbContext : DbContext
+    public abstract class BaseDbContextRepository<TContext> where TContext : DbContext
     {
-        protected IMapper _mapper;
-        private readonly ILogger _logger;
+        protected readonly ILogger _logger;
+        protected readonly TContext _context;
+        protected readonly IMapper _mapper;
 
-        public BaseDbContext(DbContextOptions options, IMapper mapper, ILogger logger) : base(options)
+        public BaseDbContextRepository(ILogger logger, TContext context, IMapper mapper)
         {
-            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _logger = logger;
+            _context = context;
+            _mapper = mapper;
         }
+
+
 
         #region Generic CRUD Methods
         public async Task<bool> CreateAsync<TDto, TEntity>(object key, TDto input) where TEntity : class
@@ -26,24 +30,24 @@ namespace RadzenTemplate.EntityFrameworkCore.SqlServer.Contexts
             if (input == null || key == null)
                 throw new ArgumentException("Input was null");
 
-            var alreadyExists = await FindAsync<TEntity>(key);
+            var alreadyExists = await _context.FindAsync<TEntity>(key);
 
             if (alreadyExists != null)
                 return false;
 
             var entity = _mapper.Map<TEntity>(input);
 
-            Add(entity);
+            _context.Add(entity);
 
             return await SafeSaveChanges();
         }
         public IQueryable<TDto> GetList<TDto, TEntity>() where TEntity : class
                                                                where TDto : class
         {
-            var getAllExpression = Set<TEntity>().AsQueryable().Expression;
+            var getAllExpression = _context.Set<TEntity>().AsQueryable().Expression;
             var getAllLambda = Expression.Lambda<Func<IQueryable<TEntity>>>(getAllExpression);
 
-            var entities = FromExpression(getAllLambda);
+            var entities = _context.FromExpression(getAllLambda);
 
             return _mapper.ProjectTo<TDto>(entities);
         }
@@ -54,7 +58,7 @@ namespace RadzenTemplate.EntityFrameworkCore.SqlServer.Contexts
             if (key == null)
                 return null;
 
-            var entity = await FindAsync<TEntity>(key);
+            var entity = await _context.FindAsync<TEntity>(key);
 
             if (entity == null)
                 return null;
@@ -68,15 +72,15 @@ namespace RadzenTemplate.EntityFrameworkCore.SqlServer.Contexts
             if (input == null || key == null)
                 return false;
 
-            var entity = await FindAsync<TEntity>(key);
+            var entity = await _context.FindAsync<TEntity>(key);
 
             if (entity != null)
             {
-                Entry(entity).CurrentValues.SetValues(input);
+                _context.Entry(entity).CurrentValues.SetValues(input);
             }
             else if (upsert)
             {
-                Add(entity);
+                _context.Add(entity);
             }
             else
             {
@@ -92,22 +96,22 @@ namespace RadzenTemplate.EntityFrameworkCore.SqlServer.Contexts
             if (key == null)
                 return false;
 
-            var entity = await FindAsync<TEntity>(key);
+            var entity = await _context.FindAsync<TEntity>(key);
 
             if (entity == null)
                 return false;
 
-            Remove(entity);
+            _context.Remove(entity);
 
             return await SafeSaveChanges();
         }
         #endregion
-
-        public async Task<bool> SafeSaveChanges()
+        
+        protected async Task<bool> SafeSaveChanges()
         {
             try
             {
-                await SaveChangesAsync();
+                await _context.SaveChangesAsync();
                 return true;
             }
             catch (Exception ex)
