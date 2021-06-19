@@ -2,18 +2,16 @@
 using Microsoft.Extensions.Logging;
 using RadzenTemplate.EntityFrameworkCore.SqlServer;
 using RadzenTemplate.EntityFrameworkCore.SqlServer.Contexts;
-using RadzenTemplate.EntityFrameworkCore.SqlServer.Models;
 using RadzenTemplate.Shared;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace RadzenTemplate.Server.Repositories
 {
-    public class RadzenTemplateRepository : BaseDbContextRepository<RadzenTemplateContext>
+    public class RadzenTemplateRepository : DbContextRepository<RadzenTemplateContext>
     {
         public RadzenTemplateRepository(ILogger<RadzenTemplateRepository> logger, RadzenTemplateContext context, IMapper mapper) : base(logger, context, mapper)
         {

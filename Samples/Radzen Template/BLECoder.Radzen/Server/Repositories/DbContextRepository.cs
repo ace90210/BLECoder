@@ -8,13 +8,13 @@ using System.Threading.Tasks;
 
 namespace RadzenTemplate.Server.Repositories
 {
-    public abstract class BaseDbContextRepository<TContext> where TContext : DbContext
+    public class DbContextRepository<TContext> where TContext : DbContext
     {
         protected readonly ILogger _logger;
         protected readonly TContext _context;
         protected readonly IMapper _mapper;
 
-        public BaseDbContextRepository(ILogger logger, TContext context, IMapper mapper)
+        public DbContextRepository(ILogger logger, TContext context, IMapper mapper)
         {
             _logger = logger;
             _context = context;

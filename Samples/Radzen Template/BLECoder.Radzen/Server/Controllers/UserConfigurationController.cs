@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.JsonPatch;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using RadzenTemplate.Server.Services;
 using RadzenTemplate.Shared;
@@ -60,6 +61,29 @@ namespace RadzenTemplate.Server.Controllers
                 return Ok();
 
             return BadRequest();
+        }
+
+        [HttpPatch("{key}")]
+        public async Task<ActionResult> PatchConfiguration(string key, [FromBody] JsonPatchDocument<UserConfigurationDto> patchDocument)
+        {
+            if (string.IsNullOrWhiteSpace(key))
+                return BadRequest("Invalid or miss matched key");
+
+            if (patchDocument == null)
+                return BadRequest("Invalid or miss patch document");
+
+            var response = await userConfigurationService.GetConfiguration(key);
+
+            patchDocument.ApplyTo(response);
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var result = await userConfigurationService.UpdateConfigurationAsync(key, response);
+
+            return Ok(result);
         }
     }
 }
