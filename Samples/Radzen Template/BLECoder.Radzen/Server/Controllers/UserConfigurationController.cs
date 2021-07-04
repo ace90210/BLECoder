@@ -35,6 +35,7 @@ namespace RadzenTemplate.Server.Controllers
         [HttpGet]
         public ActionResult<IEnumerable<UserConfigurationDto>> GetAll()
         {
+            var customerName = HttpContext.User.Identity.Name;
             return Ok(userConfigurationService.GetUserConfigurations());
         }
 
@@ -71,6 +72,7 @@ namespace RadzenTemplate.Server.Controllers
 
             if (patchDocument == null)
                 return BadRequest("Invalid or miss patch document");
+
 
             var response = await userConfigurationService.GetConfiguration(key);
 

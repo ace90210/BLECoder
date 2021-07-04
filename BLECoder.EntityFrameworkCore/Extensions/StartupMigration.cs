@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 
-namespace MockDoor.Data.Migrations
+namespace BLECoder.EntityFrameworkCore.Extensions
 {
     public static class StartupMigration
     {

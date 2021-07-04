@@ -41,5 +41,11 @@ namespace RadzenTemplate.Client.Services
         {
             return await PutFromJsonResponseAsync<WeatherForecast[], int>("WeatherForecast", count);
         }
+
+
+        public async Task<FromJsonResponse<WeatherForecast>> PostNewForecast(WeatherForecast forecast)
+        {
+            return await PostFromJsonResponseAsync<WeatherForecast, WeatherForecast>("WeatherForecast/new", forecast, true);
+        }
     }
 }

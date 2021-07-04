@@ -34,7 +34,8 @@ namespace RadzenTemplate.Client
 
             builder.Services.AddScoped<ThemeState>();
 
-            builder.Services.AddHttpClient<AuthorisedWeatherForecastService>(client => client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress)).AddHttpMessageHandler<BaseAddressAuthorizationMessageHandler>();
+            //   builder.Services.AddHttpClient<AuthorisedWeatherForecastService>(client => client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress)).AddHttpMessageHandler<BaseAddressAuthorizationMessageHandler>();
+            builder.Services.AddScoped<AuthorisedWeatherForecastService>();
 
             builder.Services.AddHttpClient<HttpWeatherForecastService>(client => client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress));
             await builder.Build().RunAsync();

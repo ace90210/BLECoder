@@ -12,7 +12,6 @@ namespace BLECoder.Blazor.Client.Policy
         {
             return HttpPolicyExtensions
                                 .HandleTransientHttpError()
-                                .OrResult(result => !result.IsSuccessStatusCode)
                                 .WaitAndRetryAsync(retryLimit, sleepDurationProvider, onRetry: (response, retryDelay, retryCount, context) =>
                                 {
 

@@ -3,6 +3,7 @@ using BLECoder.Blazor.Client.Models;
 using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 using Polly;
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Text;
@@ -23,53 +24,53 @@ namespace BLECoder.Blazor.Client.Http
 
         public BaseHttpService(HttpClient httpClient) { this.httpClient = httpClient; }
 
-        protected async Task<FromJsonResponse<TValue>> GetFromJsonResponseAsync<TValue>(string requestUri)
+        protected async Task<FromJsonResponse<TValue>> GetFromJsonResponseAsync<TValue>(string requestUri, bool expectModelStateOnBadRequest = true)
         {
-            return await SendFromJsonResponseAsync<TValue>(() => httpClient.GetAsync(requestUri));
+            return await SendFromJsonResponseAsync<TValue>(() => httpClient.GetAsync(requestUri), expectModelStateOnBadRequest);
         }
 
-        protected async Task<FromJsonResponse<TResultValue>> PostFromJsonResponseAsync<TResultValue, TInputValue>(string requestUri, TInputValue value)
-        {
-            var serializedValue = JsonSerializer.Serialize(value);
-            using var stringContent = new StringContent(serializedValue, Encoding.UTF8, "application/json");
-
-            return await SendFromJsonResponseAsync<TResultValue>(() => httpClient.PostAsync(requestUri, stringContent));
-        }
-
-        protected async Task<FromJsonResponse<TValue>> PostFromJsonResponseAsync<TValue>(string requestUri, TValue value)
+        protected async Task<FromJsonResponse<TResultValue>> PostFromJsonResponseAsync<TResultValue, TInputValue>(string requestUri, TInputValue value, bool expectModelStateOnBadRequest = true)
         {
             var serializedValue = JsonSerializer.Serialize(value);
             using var stringContent = new StringContent(serializedValue, Encoding.UTF8, "application/json");
 
-            return await SendFromJsonResponseAsync<TValue>(() => httpClient.PostAsync(requestUri, stringContent));
+            return await SendFromJsonResponseAsync<TResultValue>(() => httpClient.PostAsync(requestUri, stringContent), expectModelStateOnBadRequest);
         }
 
-        protected async Task<FromJsonResponse<TResultValue>> PutFromJsonResponseAsync<TResultValue, TInputValue>(string requestUri, TInputValue value)
+        protected async Task<FromJsonResponse<TValue>> PostFromJsonResponseAsync<TValue>(string requestUri, TValue value, bool expectModelStateOnBadRequest = true)
         {
             var serializedValue = JsonSerializer.Serialize(value);
             using var stringContent = new StringContent(serializedValue, Encoding.UTF8, "application/json");
 
-            return await SendFromJsonResponseAsync<TResultValue>(() => httpClient.PutAsync(requestUri, stringContent));
+            return await SendFromJsonResponseAsync<TValue>(() => httpClient.PostAsync(requestUri, stringContent), expectModelStateOnBadRequest);
         }
 
-        protected async Task<FromJsonResponse<TValue>> PutFromJsonResponseAsync<TValue>(string requestUri, TValue value)
+        protected async Task<FromJsonResponse<TResultValue>> PutFromJsonResponseAsync<TResultValue, TInputValue>(string requestUri, TInputValue value, bool expectModelStateOnBadRequest = true)
         {
             var serializedValue = JsonSerializer.Serialize(value);
             using var stringContent = new StringContent(serializedValue, Encoding.UTF8, "application/json");
 
-            return await SendFromJsonResponseAsync<TValue>(() => httpClient.PutAsync(requestUri, stringContent));
+            return await SendFromJsonResponseAsync<TResultValue>(() => httpClient.PutAsync(requestUri, stringContent), expectModelStateOnBadRequest);
         }
 
-        protected async Task<FromJsonResponse<TValue>> DeleteWithJsonResponseAsync<TValue>(string requestUri)
+        protected async Task<FromJsonResponse<TValue>> PutFromJsonResponseAsync<TValue>(string requestUri, TValue value, bool expectModelStateOnBadRequest = true)
+        {
+            var serializedValue = JsonSerializer.Serialize(value);
+            using var stringContent = new StringContent(serializedValue, Encoding.UTF8, "application/json");
+
+            return await SendFromJsonResponseAsync<TValue>(() => httpClient.PutAsync(requestUri, stringContent), expectModelStateOnBadRequest);
+        }
+
+        protected async Task<FromJsonResponse<TValue>> DeleteWithJsonResponseAsync<TValue>(string requestUri, bool expectModelStateOnBadRequest = true)
         {
             var delete = await ProcessOnDelete();
             if (delete)
-                return await SendFromJsonResponseAsync<TValue>(() => httpClient.DeleteAsync(requestUri));
+                return await SendFromJsonResponseAsync<TValue>(() => httpClient.DeleteAsync(requestUri), expectModelStateOnBadRequest);
 
             return new FromJsonResponse<TValue>() { Message = "User Cancelled Delete" };
         }
 
-        private async Task<FromJsonResponse<TValue>> SendFromJsonResponseAsync<TValue>(Func<Task<HttpResponseMessage>> action)
+        private async Task<FromJsonResponse<TValue>> SendFromJsonResponseAsync<TValue>(Func<Task<HttpResponseMessage>> action, bool expectModelStateOnBadRequest = true)
         {
             var fromJsonResponse = new FromJsonResponse<TValue>();
             try
@@ -94,6 +95,24 @@ namespace BLECoder.Blazor.Client.Http
                     await ProcessOnError(response);
 
                     fromJsonResponse.FullResponse = response;
+
+                    if (expectModelStateOnBadRequest)
+                    {
+                        try
+                        {
+                            var modelState = await response.Content?.GetContentJsonAsync<Dictionary<string, List<string>>>();
+
+                            fromJsonResponse.ModelState = modelState;
+                        }
+                        catch (Exception)
+                        {
+                            var customResponse = new HttpResponseMessage(HttpStatusCode.Unauthorized);
+                            customResponse.Content = new StringContent("No model state found.");
+
+                            fromJsonResponse.FullResponse = customResponse;
+                            fromJsonResponse.Message = "No model state found.";
+                        }
+                    }
                 }
             }
             catch (AccessTokenNotAvailableException)

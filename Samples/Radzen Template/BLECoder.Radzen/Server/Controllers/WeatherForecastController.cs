@@ -19,7 +19,7 @@ namespace RadzenTemplate.Server.Controllers
         };
 
         private readonly ILogger<WeatherForecastController> _logger;
-        private static int forecastCount = 5, calls = 0;
+        private static int forecastCount = 5;
 
         public WeatherForecastController(ILogger<WeatherForecastController> logger)
         {
@@ -29,14 +29,13 @@ namespace RadzenTemplate.Server.Controllers
         [HttpGet]
         public ActionResult<IEnumerable<WeatherForecast>> Get()
         {
-            Thread.Sleep(500);
-
             var rng = new Random();
             return Ok(Enumerable.Range(1, forecastCount).Select(index => new WeatherForecast
             {
                 Date = DateTime.Now.AddDays(index),
                 TemperatureC = rng.Next(-20, 55),
-                Summary = Summaries[rng.Next(Summaries.Length)]
+                Summary = Summaries[rng.Next(Summaries.Length)],
+                Status = (Status)rng.Next(4)
             })
             .ToArray());
         }
@@ -44,6 +43,7 @@ namespace RadzenTemplate.Server.Controllers
         [HttpGet("authorised")]
         public ActionResult<IEnumerable<WeatherForecast>> GetAuthorised()
         {
+            var customerName = HttpContext.User.Identity.Name;
             var rng = new Random();
 
             if (rng.Next(10) < 7)
@@ -53,7 +53,8 @@ namespace RadzenTemplate.Server.Controllers
             {
                 Date = DateTime.Now.AddDays(index),
                 TemperatureC = rng.Next(-20, 55),
-                Summary = Summaries[rng.Next(Summaries.Length)]
+                Summary = Summaries[rng.Next(Summaries.Length)],
+                Status = (Status)rng.Next(4)
             })
             .ToArray());
         }
@@ -68,6 +69,22 @@ namespace RadzenTemplate.Server.Controllers
 
             forecastCount = newCount;
             return Get();
+        }
+
+        [HttpPost("new")]
+        public ActionResult<WeatherForecast> Post([FromBody] WeatherForecast weatherForecast)
+         {
+            if(weatherForecast == null)
+            {
+                return BadRequest("Not Set");
+            }
+
+            if (ModelState.IsValid)
+            {
+                return Ok(weatherForecast);
+            }
+
+            return BadRequest(ModelState);
         }
 
         [HttpPut]

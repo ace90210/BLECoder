@@ -1,0 +1,202 @@
+﻿@page "/post-weather"
+
+@inject DialogService DialogService
+
+@inject HttpWeatherForecastService weatherService
+
+<RadzenCard>
+    <h1>Post Weather forecast</h1>
+
+    <div>Results Count:</div>
+    <b>@count</b>
+
+    @*<div class="row">
+        <div class="col-md-4 px-2">
+            <RadzenButton Text="Try POST" BusyText="POSTing ..." IsBusy=@busy Click=@(async args => { busy = true; await PostWeather(); busy = false; }) />
+        </div>
+    </div>*@
+
+    @if (forecasts == null)
+    {
+        <div class="w-100 h-100">
+            <RadzenProgressBar Value="100" class="m-auto" ShowValue="false" Mode="ProgressBarMode.Indeterminate" />
+        </div>
+    }
+    else
+    {
+        <RadzenDataGrid @ref="forcastGrid" Data="@filteredForecasts" TItem="WeatherForecast" ColumnWidth="300px" AllowColumnResize="true" AllowFiltering="true">
+            <Columns>
+                <RadzenDataGridColumn TItem="WeatherForecast" Property="Date" Title="Date" Width="100px" TextAlign="TextAlign.Center">
+                    <Template Context="forecast">
+                        @forecast.Date.ToShortDateString()
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="WeatherForecast" Property="TemperatureC" Title="Temp. (C)" Width="50px" TextAlign="TextAlign.Center" />
+                <RadzenDataGridColumn TItem="WeatherForecast" Property="TemperatureF" Title="Temp. (F)" Width="50px" TextAlign="TextAlign.Center" />
+                <RadzenDataGridColumn TItem="WeatherForecast" Property="Summary" Title="Summary" Width="150px" TextAlign="TextAlign.Center" />
+                <RadzenDataGridColumn TItem="WeatherForecast" Property="Status" Title="Status" Width="150px" TextAlign="TextAlign.Center">
+                    <FilterTemplate>
+                        <RadzenDropDown @bind-Value="@currentStatus" TextProperty="Text" ValueProperty="Value" Style="width:100%"
+                                        Change=@StateHasChanged
+                                        Data="@(DropdownHelpers.CreateEnumList<Status>("Any"))" />
+
+                    </FilterTemplate>
+
+                </RadzenDataGridColumn>
+            </Columns>
+        </RadzenDataGrid>
+    }
+
+<RadzenTemplateForm Data="@weatherForecast" Submit="@(async (WeatherForecast args) => { await Submit(args); })">
+
+    <div class="row">
+        <div class="col-md-12">
+            <RadzenFieldset Text="Weather Info">
+                <div class="row">
+                    <div class="col-md-4 align-items-center d-flex">
+                        <RadzenLabel Text="Date" />
+                    </div>
+                    <div class="col-md-8">
+                        <RadzenDatePicker style="width: 100%;" Name="Date" @bind-Value="weatherForecast.Date" DateFormat="dd/MM/yyyy" />
+                    </div>
+                </div>
+
+                <div class="row mt-2">
+                    <div class="col-md-4 align-items-center d-flex">
+                        <RadzenLabel Text="Temp C" />
+                    </div>
+                    <div class="col-md-3">
+                        <RadzenNumeric style="width: 100%;" Name="TemperatureC" @bind-Value="weatherForecast.TemperatureC" Step="0.1" Format="00.0"/>
+                    </div>
+                </div>
+
+                <div class="row mt-2">
+                    <div class="col-md-4 align-items-center d-flex">
+                        <RadzenLabel Text="Summary" />
+                    </div>
+                    <div class="col-md-8">
+                        <RadzenTextBox style="width: 100%;" Name="Summary" @bind-Value="weatherForecast.Summary" />
+                    </div>
+                </div>
+
+                <div class="row mt-2">
+                    <div class="col-md-4 align-items-center d-flex">
+                        <RadzenLabel Text="Status" />
+                    </div>
+                    <div class="col-md-8">
+                        <RadzenDropDown @bind-Value="weatherForecast.Status" Data="@(DropdownHelpers.CreateEnumList<Status>())" style="width: 100%;" TextProperty="Text" ValueProperty="Value" Name="Status">
+                        </RadzenDropDown>
+                    </div>
+                </div>
+            </RadzenFieldset>
+        </div>
+    </div>
+
+
+    <div class="row justify-content-center">
+        <div class="col-md-12 d-flex align-items-end justify-content-center" style="margin-top: 16px;">
+            <RadzenButton ButtonType="ButtonType.Submit" Icon="save" Text="Save" />
+            <RadzenButton ButtonStyle="ButtonStyle.Light" Icon="cancel" style="display: inline-block; margin-left: 10px;" Text="Cancel" Click="@Reset" />
+        </div>
+    </div>
+</RadzenTemplateForm>
+</RadzenCard>
+
+
+@code {
+    private List<WeatherForecast> forecasts;
+
+    [CascadingParameter(Name = "ErrorComponent")]
+    protected IErrorComponent ErrorComponent { get; set; }
+
+    [CascadingParameter(Name = "MainLayoutComponent")]
+    protected IMainLayoutComponent MainLayoutComponent { get; set; }
+
+    RadzenDataGrid<WeatherForecast> forcastGrid;
+
+    WeatherForecast weatherForecast = new WeatherForecast() { Date = DateTime.UtcNow, TemperatureC = 21 };
+
+    private int count = 0;
+
+    private bool busy = false;
+
+    private Status? currentStatus;
+
+
+    private List<WeatherForecast> filteredForecasts => currentStatus == null ? forecasts : forecasts.Where(f => f.Status == currentStatus).ToList();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await MainLayoutComponent.ShowBusyDialog();
+
+        await CallWeather();
+
+        await MainLayoutComponent.CloseDialog();
+    }
+
+    private async Task CallWeather()
+    {
+        try
+        {
+            var response = await weatherService.GetForecast();
+
+            if (response.Content != null)
+            {
+                forecasts = response.Content.ToList();
+            }
+            else
+            {
+                ErrorComponent.HandleFailedResponse(response);
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorComponent.ShowError(ex.Message, ex.StackTrace);
+        }
+    }
+
+
+    private async Task PostWeather()
+    {
+        var response = await weatherService.PostNewForecast(forecasts.First());
+
+        if (response.IsSuccessful)
+        {
+            if (response.Content != null)
+            {
+                forecasts.Add(response.Content);
+                await forcastGrid.Reload();
+            }
+        }
+        else
+        {
+            ErrorComponent.HandleFailedResponse(response);
+        }
+        StateHasChanged();
+    }
+
+    async Task Submit(WeatherForecast arg)
+    {
+        var response = await weatherService.PostNewForecast(arg);
+
+        if (response.IsSuccessful)
+        {
+            if (response.Content != null)
+            {
+                forecasts.Add(response.Content);
+                await forcastGrid.Reload();
+            }
+        }
+        else
+        {
+            ErrorComponent.HandleFailedResponse(response, "Create Weather Failed");
+        }
+        Reset();
+    }
+
+    void Reset()
+    {
+        weatherForecast = new WeatherForecast() { Date = DateTime.UtcNow, TemperatureC = 21 };
+        StateHasChanged();
+    }
+}

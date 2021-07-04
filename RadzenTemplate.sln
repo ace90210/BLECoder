@@ -21,7 +21,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BLECoder.Blazor.Server.Auth
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BLECoder.EntityFrameworkCore", "BLECoder.EntityFrameworkCore\BLECoder.EntityFrameworkCore.csproj", "{BDD2CE60-CCA0-463A-9E23-88BA0F8B0835}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RadzenTemplate.EntityFrameworkCore.SqlServer", "Samples\Radzen Template\BLECoder.Radzen\RadzenTemplate.EntityFrameworkCore.SqlServer\RadzenTemplate.EntityFrameworkCore.SqlServer.csproj", "{0E2B94C6-F485-4120-8834-E4CFF50ACD3A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RadzenTemplate.EntityFrameworkCore.SqlServer", "Samples\Radzen Template\BLECoder.Radzen\RadzenTemplate.EntityFrameworkCore.SqlServer\RadzenTemplate.EntityFrameworkCore.SqlServer.csproj", "{0E2B94C6-F485-4120-8834-E4CFF50ACD3A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

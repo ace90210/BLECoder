@@ -8,19 +8,63 @@
 {
     if (HostEnvironment.IsDevelopment())
     {
+<div class="alert alert-danger" role="alert">
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close" @onclick="HideError">
+        <span aria-hidden="true">&times;</span>
+    </button>
+    <h3>@title</h3>
+    <p>@message</p>
+
+    @if (ex != null)
+    {
+        <b>@ex.Message</b>
+        <p>@ex.StackTrace</p>
+    }
+
+    @if (modelState != null)
+    {
+            <p>The following fields were invalid </p>
+
+            <ul>
+                @foreach (var error in modelState)
+                {
+                    <li>
+                        @error.Key :
+
+                        @foreach (var itemError in error.Value)
+                        {
+                            @itemError
+                        }
+                    </li>
+                }
+            </ul>
+    }
+</div>
+    }
+    else if (modelState != null)
+    { 
         <div class="alert alert-danger" role="alert">
             <button type="button" class="close" data-dismiss="alert" aria-label="Close" @onclick="HideError">
                 <span aria-hidden="true">&times;</span>
             </button>
             <h3>@title</h3>
-            <p>@message</p>
+            <p>The following fields were invalid </p>
 
-            @if (ex != null)
-            {
-                <b>@ex.Message</b>
-                <p>@ex.StackTrace</p>
-            }
-        </div>
+
+            <ul>
+                @foreach (var error in modelState)
+                {
+                    <li>
+                        @error.Key :
+
+                        @foreach (var itemError in error.Value)
+                        {
+                            @itemError
+                        }
+                    </li>
+                }
+            </ul>
+        </div>       
     }
     else
     {
@@ -55,6 +99,7 @@
     string title;
     string message;
     Exception ex;
+    Dictionary<string, List<string>> modelState;
 
     public void ShowError(string title, string message, Exception ex = null)
     {
@@ -72,7 +117,7 @@
         this.title = title;
         this.ex = response.Exception;
 
-        if(!string.IsNullOrWhiteSpace(response.Message))
+        if (!string.IsNullOrWhiteSpace(response.Message))
         {
             this.message = response.Message;
         }
@@ -80,6 +125,8 @@
         {
             this.message = response.FullResponse.StatusCode.ToString();
         }
+
+        modelState = response.ModelState;
 
         StateHasChanged();
     }

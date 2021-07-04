@@ -1,4 +1,5 @@
-﻿using BLECoder.Blazor.Client.Http;
+﻿using BLECoder.Blazor.Client.Authentication.Tools;
+using BLECoder.Blazor.Client.Http;
 using BLECoder.Blazor.Client.Models;
 using BLECoder.Blazor.Client.Policy;
 using Radzen;
@@ -10,7 +11,7 @@ namespace RadzenTemplate.Client.Services
 {
     public class AuthorisedWeatherForecastService : BaseHttpService
     {
-        public AuthorisedWeatherForecastService(HttpClient httpClient, NotificationService notificationService) : base (httpClient)
+        public AuthorisedWeatherForecastService(HttpAuthClient httpClient, NotificationService notificationService) : base (httpClient.Client(true))
         {
             retryPolicy = DefaultPolicies.NotificationPolicy(notificationService);
         }

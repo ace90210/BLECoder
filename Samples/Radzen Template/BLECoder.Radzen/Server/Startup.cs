@@ -1,11 +1,12 @@
 using BLECoder.Blazor.Server.Authentication.Extensions;
+using BLECoder.EntityFrameworkCore.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using MockDoor.Data.Migrations;
 using RadzenTemplate.EntityFrameworkCore.SqlServer.Contexts;
 using RadzenTemplate.Server.AutoMapperProfiles;
 using RadzenTemplate.Server.Repositories;
@@ -29,6 +30,7 @@ namespace RadzenTemplate.Server
             services.AddControllersWithViews()
                         .AddNewtonsoftJson(); // Required when using JsonPatchDocument
 
+
             services.AddRazorPages();
             services.AddAutoMapper(typeof(UserConfigurationProfile));
 
@@ -41,6 +43,11 @@ namespace RadzenTemplate.Server
 
             services.AddScoped<RadzenTemplateRepository>();
             services.AddScoped<UserConfigurationService>();
+
+            services.Configure<ApiBehaviorOptions>(options =>
+            {
+                options.SuppressModelStateInvalidFilter = true;
+            });
 
         }
 

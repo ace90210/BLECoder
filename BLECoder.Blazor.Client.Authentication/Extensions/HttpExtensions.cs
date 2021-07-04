@@ -12,8 +12,10 @@ namespace BLECoder.Blazor.Client.Authentication.Extensions
     /// </summary>
     public static class HttpExtensions
     {
+        public static JsonSerializerOptions DefaultSerializerOptions = new JsonSerializerOptions() { PropertyNameCaseInsensitive = true, IgnoreNullValues = true };
+
         /// <summary>
-        /// Return the content of as teh specific object.
+        /// Return the content of as the specific object.
         /// </summary>
         /// <typeparam name="T">The data type to return the data in</typeparam>
         /// <param name="httpContent">The HttpContent</param>
@@ -25,7 +27,11 @@ namespace BLECoder.Blazor.Client.Authentication.Extensions
             {
                 var responseContentStream = await httpContent.ReadAsStreamAsync();
 
-                return await JsonSerializer.DeserializeAsync<T>(responseContentStream, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true, IgnoreNullValues = true });
+                if(DefaultSerializerOptions != null)
+                    return await JsonSerializer.DeserializeAsync<T>(responseContentStream, DefaultSerializerOptions);
+
+
+                return await JsonSerializer.DeserializeAsync<T>(responseContentStream);
             }
             catch (Exception)
             {

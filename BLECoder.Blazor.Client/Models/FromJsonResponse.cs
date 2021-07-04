@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net.Http;
 
 namespace BLECoder.Blazor.Client.Models
@@ -9,7 +10,11 @@ namespace BLECoder.Blazor.Client.Models
 
         public HttpResponseMessage FullResponse { get; set; }
 
+        public bool IsSuccessful => FullResponse.IsSuccessStatusCode;
+
         public string Message { get; set; }
+
+        public Dictionary<string, List<string>> ModelState { get; set; }
 
         public Exception Exception { get; set; }
     }
